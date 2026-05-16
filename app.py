@@ -828,16 +828,41 @@ with tab_setup:
         )
         st.code("# Verify installation\nollama --version", language="bash")
 
-    with st.expander("**Step 3 — Pull a language model**"):
-        st.markdown("Choose one of these free models:")
-        for key, info in SUPPORTED_MODELS.items():
-            st.code(f"ollama pull {info['ollama_name']}  # {info['display']} ({info['pull_size']})", language="bash")
+    with st.expander("**Step 3 — (Cloud) Get a free Groq API key**", expanded=True):
+        st.markdown(
+            """
+            Groq runs Llama 3, Mixtral and Gemma for free — no credit card needed.
 
-    with st.expander("**Step 4 — Start Ollama server**"):
-        st.code("ollama serve", language="bash")
-        st.caption("Keep this running in a separate terminal window.")
+            1. Sign up at [console.groq.com](https://console.groq.com)
+            2. Create an API key (starts with `gsk_...`)
+            3. **Streamlit Cloud**: App Settings → Secrets → add:
+            ```toml
+            GROQ_API_KEY = "gsk_your_key_here"
+            ```
+            4. **Local**: paste the key in the sidebar text field, or add to `.env`
+            """
+        )
 
-    with st.expander("**Step 5 — Run the application**"):
+    with st.expander("**Step 3 — (Local) Install Ollama for offline use**"):
+        st.markdown(
+            """
+            Ollama lets you run LLMs entirely on your own machine — no internet needed after model download.
+
+            - **macOS**: `brew install ollama`
+            - **Linux**: `curl -fsSL https://ollama.com/install.sh | sh`
+            - **Windows**: [ollama.com/download](https://ollama.com/download)
+
+            Then pull a model:
+            """
+        )
+        for key, info in RAGChain.ollama_models().items():
+            st.code(
+                f"ollama pull {info['ollama_name']}  # {info['display']}",
+                language="bash",
+            )
+        st.code("ollama serve  # keep running in a separate terminal", language="bash")
+
+    with st.expander("**Step 4 — Run the application**"):
         st.code("streamlit run app.py", language="bash")
 
     st.divider()
@@ -846,7 +871,8 @@ with tab_setup:
         """
         | Component | Technology | Cost |
         |-----------|-----------|------|
-        | LLM | Ollama (Mistral / Llama 3 / Phi-3) | Free |
+        | LLM (cloud) | Groq — Llama 3 / Mixtral / Gemma | Free tier |
+        | LLM (local) | Ollama — Mistral / Llama 3 / Phi-3 | Free |
         | Embeddings | `all-MiniLM-L6-v2` (HuggingFace) | Free |
         | Vector DB | FAISS (Facebook AI) | Free |
         | Framework | LangChain | Free |
@@ -860,14 +886,15 @@ with tab_setup:
     st.code(
         """
 rag-sales-assistant/
-├── app.py                  # Streamlit frontend
-├── requirements.txt        # Python dependencies
-├── src/
-│   ├── document_processor.py   # PDF, Excel, CSV ingestion
-│   ├── vector_store.py          # FAISS + embeddings
-│   └── rag_chain.py             # LLM + RAG pipeline
-├── vectorstore/            # Persisted FAISS index (auto-created)
-└── uploads/                # Temp upload staging
+├── app.py                   # Streamlit frontend
+├── document_processor.py    # PDF, Excel, CSV ingestion
+├── vector_store.py          # FAISS + embeddings
+├── rag_chain.py             # Groq/Ollama LLM + RAG pipeline
+├── requirements.txt         # Python dependencies
+├── .streamlit/
+│   ├── config.toml          # Theme settings
+│   └── secrets.toml         # GROQ_API_KEY (local dev, never commit)
+└── vectorstore/             # Persisted FAISS index (auto-created)
         """,
         language="text",
     )
