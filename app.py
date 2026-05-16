@@ -14,8 +14,9 @@ import streamlit as st
 
 # ── Path setup ──────────────────────────────────────────────────────────────
 ROOT = Path(__file__).parent
-SRC = ROOT / "src"
-sys.path.insert(0, str(SRC))
+# Ensure the app root is always on the path (works on Streamlit Cloud + local)
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from document_processor import DocumentProcessor
 from vector_store import VectorStoreManager
